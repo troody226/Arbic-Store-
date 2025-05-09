@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>متجري البسيط</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f9f9f9; margin: 0; padding: 0; }
+    header { background: #333; color: #fff; padding: 1rem; text-align: center; }
+    .products { display: flex; flex-wrap: wrap; justify-content: center; gap: 1rem; padding: 2rem; }
+    .product { background: #fff; border: 1px solid #ccc; border-radius: 8px; width: 250px; padding: 1rem; text-align: center; }
+    .product img { max-width: 100%; height: auto; }
+    .currency-select { margin: 1rem auto; display: flex; justify-content: center; }
+    .cart { position: fixed; top: 1rem; left: 1rem; background: #ff6600; color: #fff; padding: 0.5rem 1rem; border-radius: 20px; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>مرحبا بك في متجري</h1>
+  </header>
+
+  <div class="currency-select">
+    <label for="currency">اختر العملة: </label>
+    <select id="currency">
+      <option value="IQD">دينار عراقي</option>
+      <option value="USD">دولار أمريكي</option>
+      <option value="SAR">ريال سعودي</option>
+    </select>
+  </div>
+
+  <div class="cart" onclick="viewCart()">سلة المشتريات (<span id="cart-count">0</span>)</div>
+
+  <main class="products" id="product-list">
+    <!-- المنتجات ستُعرض هنا -->
+  </main>
+
+  <script>
+    const products = [
+      { id: 1, name: "قميص رجالي", price: 20000, image: "https://via.placeholder.com/200" },
+      { id: 2, name: "حقيبة نسائية", price: 45000, image: "https://via.placeholder.com/200" },
+      { id: 3, name: "ساعة يد", price: 75000, image: "https://via.placeholder.com/200" }
+    ];
+
+    const exchangeRates = {
+      IQD: 1,
+      USD: 0.00076,
+      SAR: 0.00285
+    };
+
+    const currencySymbols = {
+      IQD: "د.ع",
+      USD: "$",
+      SAR: "ر.س"
+    };
+
+    let currentCurrency = "IQD";
+
+    function renderProducts() {
+      const container = document.getElementById("product-list");
+      container.innerHTML = "";
+      products.forEach(p => {
+        const convertedPrice = (p.price * exchangeRates[currentCurrency]).toFixed(2);
+        const productDiv = document.createElement("div");
+        productDiv.className = "product";
+        productDiv.innerHTML = `
+          <img src="${p.image}" alt="${p.name}" />
+          <h3>${p.name}</h3>
+          <p>${convertedPrice} ${currencySymbols[currentCurrency]}</p>
+          <button onclick="addToCart(${p.id})">أضف إلى السلة</button>
+        `;
+        container.appendChild(productDiv);
+      });
+    }
+
+    function addToCart(id) {
+      const cart = JSON.parse(localStorage.getItem("cart") || "[]");
+      cart.push(id);
+      localStorage.setItem("cart", JSON.stringify(cart));
+      updateCartCount();
+    }
+
+    function updateCartCount() {
+      const cart = JSON.parse(localStorage.getItem("cart") || "[]");
+      document.getElementById("cart-count").innerText = cart.length;
+    }
+
+    function viewCart() {
+      alert("محتوى السلة: " + JSON.parse(localStorage.getItem("cart") || "[]").join(", "));
+    }
+
+    document.getElementById("currency").addEventListener("change", (e) => {
+      currentCurrency = e.target.value;
+      renderProducts();
+    });
+
+    updateCartCount();
+    renderProducts();
+  </script>
+</body>
+</html>
